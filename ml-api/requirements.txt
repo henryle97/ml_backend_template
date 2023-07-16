@@ -1,0 +1,5 @@
+python-jose
+pydantic
+secrets
+passlib
+fastapi

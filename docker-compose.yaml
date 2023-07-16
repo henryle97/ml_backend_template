@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis
+    container_name: redis-ml-template
+    restart: unless-stopped
+    command: redis-server --requirepass password
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - ml-network
+
+  queue:
+    image: rabbitmq:3-management
+    # container_name: rabbitmq-ml-template
+    # env_file:
+    #   - .env
+    # ports:
+    #   - 5672:5672
+    #   - 15672:15672 
+
+    # volumes:
+    #   - rabbitmq-data:/var/lib/rabbitmq
+    #   - rabbitmq-logs:/var/lib/rabbitmq
+    networks:
+      - ml-network
+
+  db:
+    image: postgres:12
+    volumes:
+      - ml-db-data:/var/lib/postgresql/data/pgdata
+    env_file:
+      - ./ml-api/.env
+    environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
+  ml-api:
+    image: ml-api:lastest
+    depends_on:
+      - redis
+      - queue
+      - db
+    env_file:
+      - ./ml-api/.env
+    build: 
+      context: ./ml-api
+      dockerfile: Dockerfile
+
+    command: bash -c "python run.py"
+    ports:
+      - 6868:6868
+    networks:
+      - ml-network
