@@ -53,3 +53,17 @@ services:
       - 6868:6868
     networks:
       - ml-network
+  ml-celery:
+    command: bash -c "celery -A celery.tasks worker --loglevel=info --concurrency=1 -E --logfile=/logs/celery.log"
+
+    volumes:
+      - ./ml-storage:/storages
+      - celery-logs:/logs/
+    networks:
+      - ml-network 
+networks:
+  - ml-network
+volumes:
+  - celery-logs 
+  - ml-db-data
+  - redis-data
