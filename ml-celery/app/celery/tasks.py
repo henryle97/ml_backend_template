@@ -16,6 +16,6 @@ celery_app.config_from_object("config_file.py")
         query="",
         task_name="")
 )
-def ocr():
+def ocr(self):
     res = self.model()
     return res
